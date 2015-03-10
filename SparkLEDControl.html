@@ -1,0 +1,65 @@
+<!--ThingSpeak Control Button Plugin to control a LED on a Spark Core
+Paste this code into the HTML section of a "Default" ThingSpeak Plugin and leave the CSS and
+javascript windows blank.
+The Javascript calls the spark api and requires a Spark core Device ID and Token available
+from you your www.spark.io/build IDE
+Replace the values PutYourSparkIDHere and PutYourSparkAccessTokenHere below with your unique keys
+-->
+<html>
+<head>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/cerulean/bootstrap.min.css" />
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+  
+  <style type="text/css">
+  body { background-color: #fff; padding: 40px; }
+  </style>
+  
+<script type="text/javascript">
+  
+  // device id for spark.io
+  var spark_device_id = 'PutYourSparkIDHere';
+  // access token for spark.io
+  var spark_access_token = 'PutYourSparkAccessTokenHere';
+  
+  // http for on switch
+  var on_url = 'https://api.spark.io/v1/devices/' + spark_device_id + '/led';
+  // data for on switch
+  var on_data = { controlString: 'on', access_token: spark_access_token };
+  
+  // http for off switch
+  var off_url = 'https://api.spark.io/v1/devices/' + spark_device_id + '/led';
+  // data for off switch
+  var off_data = { controlString: 'off', access_token: spark_access_token };
+
+  
+  $(document).ready(function() {
+    
+    $('#togglebutton').change(function() {
+      var state = $(this).prop('checked');
+      
+      // if button is on
+      if (state === true) {
+        //console.log('sending request to: ' + on_url);
+        $.post(on_url, on_data, function(data) { console.log(data); });
+      
+      // if button is off
+      } else {
+        //console.log('sending request to: ' + off_url);
+        $.post(off_url, off_data, function(data) { console.log(data); });
+      }
+      
+    });
+    
+  });
+</script>
+
+</head>
+<body>
+
+  <input type="checkbox" id="togglebutton" checked data-toggle="toggle" data-size="large" data-on="Green" data-off="Red" >
+
+</body>
+</html>

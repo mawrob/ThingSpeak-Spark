@@ -1,0 +1,62 @@
+<!--ThingSpeak Button Plugin to show the state of a button on a Spark Core
+Paste this code into the HTML section of a "Default" ThingSpeak Plugin and leave the CSS and
+javascript windows blank.
+The Javascript calls the spark api and requires a Spark core Device ID and Token available
+from you your www.spark.io/build IDE
+Replace the values PutYourSparkIDHere and PutYourSparkAccessTokenHere below with your unique keys
+-->
+<html>
+<head>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/cerulean/bootstrap.min.css" />
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+  
+<style type="text/css">
+  body { background-color: #fff; padding: 40px; }
+</style>
+
+<script type="text/javascript">
+  // device id for spark.io
+  var spark_device_id = 'PutYourSparkIDHere';
+  // access token for spark.io
+  var spark_access_token = 'PutYourSparkAccessTokenHere';
+  
+  // http response that we're reacting to
+  var url = 'https://api.spark.io/v1/devices/' + spark_device_id + '/DI?access_token=' + spark_access_token;
+
+  // perform the request
+  function getData() {
+    $.get(url, function(data) {
+      updateButton(data.result);
+    });
+  }
+  
+  // change the UI on the button
+  function updateButton(result) {
+    if (result === 1) {
+      $('#togglebutton').bootstrapToggle('on');
+    } else {
+      $('#togglebutton').bootstrapToggle('off');
+    }
+  }
+  
+  // when the document is ready
+  $(document).ready(function() {
+    
+    // get the data every second
+    setInterval(function() {
+      getData();
+    }, 5000);
+    
+  });
+</script>
+
+</head>
+<body>
+
+  <input type="checkbox" id="togglebutton" checked data-toggle="toggle" data-size="large" data-on="On" data-off="Off" >
+
+</body>
+</html>
