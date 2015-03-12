@@ -5,6 +5,7 @@ newThingSpeakLibrary::newThingSpeak::newThingSpeak(String apiKey)
 {
     key = apiKey;
     timeout= DEFAULT_RESPONSE_WAIT_TIME;
+    query.reserve(80);
 }
 
 void newThingSpeakLibrary::newThingSpeak::setConnectionTimeout(uint32_t milliseconds) 
@@ -17,23 +18,26 @@ bool newThingSpeakLibrary::newThingSpeak::recordValue(int fieldId, String fieldV
     if(fieldId < 1 || fieldId > NUMBER_OF_FIELDS) {
         return false;
     }
-    values[fieldId-1] = fieldValue;
+    values[fieldId-1] = "";
+    values[fieldId-1].concat(fieldValue);
     return true;
 }
 
-String newThingSpeakLibrary::newThingSpeak::composeQuery()
+void newThingSpeakLibrary::newThingSpeak::composeQuery()
 {
-    String result = String ("/update?key=" + key);
+    query = "/update?key=";
+    query.concat(key);
     for(int ct = 0; ct < NUMBER_OF_FIELDS; ct++) 
     {
-        if(values[ct] != NULL) 
+        if(values[ct] != "") 
         {
-            String fieldParameter = String("&field" + String((ct+1), DEC) + "=" + values[ct]);
-            result.concat(fieldParameter);
-            values[ct] = NULL;
+            query.concat("&field");
+            query.concat(ct+1);
+            query.concat("=");
+            query.concat(values[ct]);
+            values[ct] = "";
         }
     }
-    return result;
 }
 
 bool newThingSpeakLibrary::newThingSpeak::sendValues() 
@@ -41,12 +45,17 @@ bool newThingSpeakLibrary::newThingSpeak::sendValues()
     if (client.connect(THINGSPEAK_API, 80))
     {
         bool ret = false;
-        client.println(String("GET " + this->composeQuery() + " HTTP/1.0"));
-        client.println(String("Host: " + String(THINGSPEAK_API)));
-        client.println("Content-Length: 0");
-        client.println();
-		
-		unsigned long lastTime = millis();
+        this->composeQuery();
+        char buf[300];  //pick a size here
+        strcat(buf,"GET ");
+        strcat(buf, query.c_str());
+        strcat(buf, " HTTP/1.0\r\n");
+        strcat(buf, "Host: ");
+        strcat(buf, THINGSPEAK_API);
+        strcat(buf, "\r\nContent-Length: 0\r\n\r\n");
+        client.write((uint8_t*)buf,strlen(buf));
+
+	unsigned long lastTime = millis();
         while( client.available() == 0 && millis()-lastTime < this->timeout ) { 
         }  
         lastTime = millis();
@@ -57,11 +66,12 @@ bool newThingSpeakLibrary::newThingSpeak::sendValues()
                 lastTime = millis();
             }
         }
-        
+        client.stop();
         return ret;
     }
     else
     {
+        client.stop();
         return false;
     }
 }
