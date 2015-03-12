@@ -14,7 +14,8 @@ namespace newThingSpeakLibrary
             TCPClient client;
             String key;
             String values [NUMBER_OF_FIELDS];
-            String composeQuery();
+            String query;
+            void composeQuery();
             uint32_t timeout;
         public:
             newThingSpeak(String apiKey);
